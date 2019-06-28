@@ -199,15 +199,33 @@ fun Context.getAppVersion(): Int {
 @TargetApi(Build.VERSION_CODES.M)
 fun Activity.requestModifySystemSettings()
 {
-    val canWrite = Settings.System.canWrite(this)
-    if (!canWrite) {
+//    val canWrite = Settings.System.canWrite(this)
+//    if (!canWrite) {
+    try {
         startActivityForResult(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
             this.data = Uri.parse("package:$packageName")
         },1001)
+    }catch (e:Exception)
+    {
+        e.printStackTrace()
     }
+
+//    }
 }
 //返回系统权限是否可设置
 @TargetApi(Build.VERSION_CODES.M)
 fun Activity.isSystemSettingsCanWrite():Boolean{
-    return Settings.System.canWrite(this)
+    var res:Boolean = true
+    try{
+        res = Settings.System.canWrite(this)
+    }
+    catch (nme:NoSuchMethodError)
+    {
+        nme.printStackTrace()
+    }
+    catch (e:Exception)
+    {
+        e.printStackTrace()
+    }
+    return res
 }
