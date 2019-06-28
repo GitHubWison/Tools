@@ -70,15 +70,15 @@ fun Bitmap.toGray(): Bitmap {
 
 
             var newGray = red.toDouble() * 0.3 + green.toDouble() * 0.59 + blue.toDouble() * 0.11
-            newGray = if (newGray < 90) {
-                0.toDouble()
-            } else {
-                225.toDouble()
-            }
-
-//            newGray = 225.toDouble()
-            val newColor = alpha or (newGray.toInt() shl 16) or (newGray.toInt() shl 8) or newGray.toInt()
-            binaryBitmap.setPixel(x, y, newColor)
+//            newGray = if (newGray < 90) {
+//                0.toDouble()
+//            } else {
+//                225.toDouble()
+//            }
+//
+////            newGray = 225.toDouble()
+//            val newColor = alpha or (newGray.toInt() shl 16) or (newGray.toInt() shl 8) or newGray.toInt()
+            binaryBitmap.setPixel(x, y, newGray.toInt())
         }
     }
     return binaryBitmap
