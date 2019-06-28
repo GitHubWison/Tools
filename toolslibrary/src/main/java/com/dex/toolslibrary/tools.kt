@@ -1,12 +1,16 @@
 package com.dex.toolslibrary
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.hardware.Camera
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -63,7 +67,7 @@ fun Bitmap.toGray(): Bitmap {
     for (x in 0 until width) {
         for (y in 0 until height) {
             val pixel = binaryBitmap.getPixel(x, y)
-            val alpha = (pixel and -0x1000000)
+            val alpha = (pixel and (0xFF shl 16))
             val red = (pixel and 0x00FF0000) shr 16
             val green = (pixel and 0x0000FF00) shr 8
             val blue = (pixel and 0x000000FF)
@@ -77,8 +81,9 @@ fun Bitmap.toGray(): Bitmap {
 //            }
 //
 ////            newGray = 225.toDouble()
-//            val newColor = alpha or (newGray.toInt() shl 16) or (newGray.toInt() shl 8) or newGray.toInt()
-            binaryBitmap.setPixel(x, y, newGray.toInt())
+            val newGrayInt = newGray.toInt()
+            val newColor = alpha or (newGrayInt shl 16) or (newGrayInt shl 8) or newGrayInt
+            binaryBitmap.setPixel(x, y, newColor)
         }
     }
     return binaryBitmap
@@ -188,4 +193,21 @@ fun String.toMD5(): String {
 fun Context.getAppVersion(): Int {
     val info = this.packageManager.getPackageInfo(this.packageName, PackageManager.GET_CONFIGURATIONS)
     return info.versionCode
+}
+
+//请求修改系统设置的权限
+@TargetApi(Build.VERSION_CODES.M)
+fun Activity.requestModifySystemSettings()
+{
+    val canWrite = Settings.System.canWrite(this)
+    if (!canWrite) {
+        startActivityForResult(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+            this.data = Uri.parse("package:$packageName")
+        },1001)
+    }
+}
+//返回系统权限是否可设置
+@TargetApi(Build.VERSION_CODES.M)
+fun Activity.isSystemSettingsCanWrite():Boolean{
+    return Settings.System.canWrite(this)
 }
