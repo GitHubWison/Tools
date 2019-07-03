@@ -8,10 +8,12 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.hardware.Camera
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import java.io.*
+import java.lang.reflect.InvocationTargetException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import kotlin.math.max
@@ -228,4 +230,31 @@ fun Activity.isSystemSettingsCanWrite():Boolean{
         e.printStackTrace()
     }
     return res
+}
+//返回wifi热点是否开启
+fun Context.isAPOpen():Boolean{
+    try {
+        val manager = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        //通过放射获取 getWifiApState()方法
+        val method = manager.javaClass.getDeclaredMethod("getWifiApState")
+        //调用getWifiApState() ，获取返回值
+        val state = method.invoke(manager) as Int
+        //通过放射获取 WIFI_AP的开启状态属性
+        val field = manager.javaClass.getDeclaredField("WIFI_AP_STATE_ENABLED")
+        //获取属性值
+        val value = field.get(manager) as Int
+        //判断是否开启
+        return state == value
+    } catch (e: NoSuchMethodException) {
+        e.printStackTrace()
+    } catch (e: IllegalAccessException) {
+        e.printStackTrace()
+    } catch (e: InvocationTargetException) {
+        e.printStackTrace()
+    } catch (e: NoSuchFieldException) {
+        e.printStackTrace()
+    }
+
+    return false
+
 }
